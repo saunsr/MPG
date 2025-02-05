@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plastic Game - 2D Farm & Soil Simulation</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Start Screen -->
+    <div id="start-screen">
+        <h1>Plastic Game</h1>
+        <button id="start-btn">Start Game</button>
+    </div>
+
+    <!-- Main Game Container (Initially Hidden) -->
+    <div id="game-container" style="display: none;">
+        
+        <!-- Top-Down Farm View (Left) -->
+        <div id="farm-container">
+            <h2>Farm View</h2>
+            <div id="farm-grid"></div>
+            <img id="tractor" src="images/tractor.png" alt="Tractor">
+        </div>
+
+        <!-- Soil Cross-Section View (Right) -->
+        <div id="soil-container">
+            <h2>Soil Profile</h2>
+            <canvas id="soil-canvas"></canvas>
+        </div>
+
+        <!-- Sidebar for Player Actions -->
+        <div id="sidebar">
+            <h2>Game Controls</h2>
+            <button id="tillage-btn">Apply Tillage</button>
+            <button id="irrigation-btn">Irrigate Field</button>
+            <button id="plastic-btn">Use Plastic Mulch</button>
+            <button id="grow-crop-btn">Grow Crop</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

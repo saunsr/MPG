@@ -1,0 +1,101 @@
+/* General Page Styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+    overflow: hidden;
+}
+
+/* Game Container Layout */
+#game-container {
+    display: none;
+    width: 90%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+}
+
+/* Farm Grid (Top-Down View) */
+#farm-container {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    height: auto;
+    overflow: visible;
+}
+
+#farm-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 60px);
+    grid-template-rows: repeat(7, 60px);
+    gap: 5px;
+    background: hsla(58, 51%, 34%, 0.455);
+    padding: 10px;
+    position: relative;
+}
+
+.farm-cell {
+    width: 60px;
+    height: 60px;
+    background: rgb(163, 167, 173);
+    border: 1px solid #333;
+    cursor: pointer;
+}
+
+.farm-cell.planted {
+    background: yellowgreen;
+}
+
+/* Tractor Image */
+#tractor {
+    width: 55px;
+    height: 55px;
+    position: absolute;
+    transition: all 0.5s ease-in-out;
+}
+
+/* Soil Cross-Section (Side View) */
+#soil-container {
+    flex: 1;
+    text-align: center;
+}
+
+#soil-canvas {
+    width: 250px;
+    height: 465px;
+    background: url('images/soil.jpg') no-repeat center center;
+    background-size: cover;
+    border: 2px solid #654321;
+}
+
+/* Sidebar for Controls */
+#sidebar {
+    flex: 1;
+    background: #eee;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    border: none;
+    background: #5c6bc0;
+    color: white;
+    border-radius: 5px;
+}
+
+button:hover {
+    background: #3949ab;
+}
