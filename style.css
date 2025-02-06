@@ -15,76 +15,140 @@ body {
 #game-container {
     display: none;
     width: 90%;
-    max-width: 1200px;
+    max-width: 1300px; /* Increased max width */
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 30px; /* Adds space between Farm, Soil, and Game Controls */
+    align-items: stretch;
 }
 
-/* Farm Grid (Top-Down View) */
-#farm-container {
-    flex: 1;
+/* Sections (Farm, Soil, Game Controls) */
+.section {
     text-align: center;
-    position: relative;
-    height: auto;
-    overflow: visible;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
-#farm-grid {
-    display: grid;
-    grid-template-columns: repeat(7, 60px);
-    grid-template-rows: repeat(7, 60px);
-    gap: 5px;
-    background: hsla(58, 51%, 34%, 0.455);
-    padding: 10px;
-    position: relative;
+/* Headers (Farm Layout, Soil Profile, Game Controls) */
+.section h2 {
+    margin-bottom: 10px;
 }
 
-.farm-cell {
-    width: 60px;
-    height: 60px;
-    background: rgb(163, 167, 173);
-    border: 1px solid #333;
-    cursor: pointer;
-}
-
-.farm-cell.planted {
-    background: yellowgreen;
-}
-
-/* Tractor Image */
-#tractor {
-    width: 55px;
-    height: 55px;
-    position: absolute;
-    transition: all 0.5s ease-in-out;
-}
-
-/* Soil Cross-Section (Side View) */
-#soil-container {
-    flex: 1;
+/* Farm & Soil Containers - Same Height */
+#farm-container, #soil-container {
+    flex: 1.2; /* Allocate more space to farm and soil */
     text-align: center;
+    height: 550px; /* Ensures both are same height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
 
-#soil-canvas {
-    width: 250px;
-    height: 465px;
-    background: url('images/soil.jpg') no-repeat center center;
-    background-size: cover;
-    border: 2px solid #654321;
-}
-
-/* Sidebar for Controls */
+/* Reduce Game Controls Width */
 #sidebar {
-    flex: 1;
+    flex: 0.6; /* Makes the Game Control column thinner */
     background: #eee;
     padding: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 10px;
+    height: 550px; /* Matches farm and soil profile */
 }
 
+/* Farm Grid */
+#farm-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 60px);
+    grid-template-rows: repeat(7, 60px);
+    gap: 5px;
+    background: hwb(58 25% 16% / 0.455);
+    padding: 10px;
+    position: relative;
+}
+
+/* Farm Cell */
+.farm-cell {
+    width: 60px;
+    height: 60px;
+    background: #0aa13c; /* Green for untitled cells */
+    border: 1px solid #333;
+    position: relative;
+}
+
+/* Soil Profile (with Matching Height) */
+#soil-container {
+    background-color: #6B4423; /* Dark soil color */
+    width: 100%;
+    height: 550px; /* Matches Farm Grid */
+    position: relative;
+}
+
+/* Soil Canvas */
+#soil-canvas {
+    flex-grow: 1;
+    width: 100%;
+    background-image: url('images/soil.jpg'); /* Soil background */
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* Soil Disturbance Effect (Tillage) */
+.tilled {
+    background-color: rgb(120, 83, 42); /* Color for tilled soil */
+    transition: background-color 0.3s ease-in-out; /* Smooth transition */
+}
+
+/* Microplastic Particles */
+.microplastic {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    position: absolute;
+    opacity: 0.8;
+}
+
+/* Microplastic Colors */
+.microplastic.red {
+    background: rgba(255, 0, 0, 0.7);
+}
+.microplastic.yellow {
+    background: rgba(255, 255, 0, 0.7);
+}
+
+/* Tractor */
+#tractor {
+    width: 50px;
+    height: 50px;
+    position: absolute;
+    transition: all 0.5s ease-in-out;
+    display: none;
+}
+
+/* Crop Styling */
+.crop {
+    width: 25px;
+    height: 25px;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* Crop Positioning */
+.farm-cell img {
+    position: absolute;
+    max-width: 80%;
+    max-height: 80%;
+}
+
+/* Change Farm Cell Color when Full */
+.farm-cell.full {
+    background: yellow;
+}
+
+/* Button Styling */
 button {
     width: 100%;
     padding: 10px;
@@ -98,4 +162,56 @@ button {
 
 button:hover {
     background: #3949ab;
+}
+
+/* Pipeline Styling */
+.pipeline {
+    width: 100%;
+    height: 10px;
+    background-color: #0077be; /* Light blue for water pipeline */
+    position: absolute;
+    z-index: 1;
+}
+
+.water-flow {
+    background-color: #00bfff; /* Water color */
+    height: 100%;
+    animation: water-flow 2s ease-out;
+}
+
+/* Add the water flow animation */
+@keyframes water-flow {
+    0% {
+        width: 0;
+    }
+    100% {
+        width: 100%;
+    }
+}
+
+/* Irrigated Cells */
+.irrigated {
+    background-color: #b0e0e6; /* Light blue to show irrigated cells */
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    #game-container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #sidebar {
+        width: 100%;
+    }
+
+    #farm-grid {
+        grid-template-columns: repeat(5, 50px);
+        grid-template-rows: repeat(5, 50px);
+    }
+
+    .farm-cell {
+        width: 50px;
+        height: 50px;
+    }
 }
