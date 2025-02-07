@@ -58,6 +58,18 @@ body {
     height: 550px; /* Matches farm and soil profile */
 }
 
+/* Forecast Box */
+#forecast-box {
+    width: 100%;
+    text-align: center;
+    padding: 8px;
+    background: #cde5ff;
+    font-weight: bold;
+    color: #0056b3;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
 /* Farm Grid */
 #farm-grid {
     display: grid;
@@ -130,10 +142,21 @@ body {
 
 /* Crop Styling */
 .crop {
-    width: 25px;
-    height: 25px;
-    background-size: contain;
-    background-repeat: no-repeat;
+    position: absolute;
+    max-width: 25px;
+    max-height: 25px;
+    transition: transform 60s ease-in-out; /* Smooth Growth Transition */
+}
+
+/* Step 1: Initially Small */
+.small-crop {
+    transform: scale(0.3); /* Start at 30% size */
+    transition: transform 60s ease-in-out; /* Smooth Growth Transition */
+}
+
+/* Step 2: After 60s, Full Size */
+.full-grown-crop {
+    transform: scale(0.7); /* Grows to full size */
 }
 
 /* Crop Positioning */
@@ -141,11 +164,6 @@ body {
     position: absolute;
     max-width: 80%;
     max-height: 80%;
-}
-
-/* Change Farm Cell Color when Full */
-.farm-cell.full {
-    background: yellow;
 }
 
 /* Button Styling */
@@ -173,13 +191,13 @@ button:hover {
     z-index: 1;
 }
 
+/* Add the water flow animation */
 .water-flow {
-    background-color: #00bfff; /* Water color */
+    background-color: #73adc1; /* Water color */
     height: 100%;
-    animation: water-flow 2s ease-out;
+    animation: water-flow 1s ease-out;
 }
 
-/* Add the water flow animation */
 @keyframes water-flow {
     0% {
         width: 0;
@@ -189,9 +207,85 @@ button:hover {
     }
 }
 
-/* Irrigated Cells */
+/* Irrigated Cells - Priority level 1*/
 .irrigated {
-    background-color: #b0e0e6; /* Light blue to show irrigated cells */
+    background-color: #b0e0e6 !important; /* Light blue for water effect */
+    transition: background-color 0.5s ease-in-out;
+}
+
+/* After irrigation is done it will smoothly transition back to original color for cell */
+.drying-back {
+    background-color: #0aa13c !important; /* previous cell color */
+    transition: background-color 1s ease-in-out;
+}
+
+/* Tilled Soil - Priority level 2 */
+.farm-cell.tilled {
+    background-color: rgb(120, 83, 42) !important; /* Brown */
+}
+
+/* Drought Effect (Darkens soil before drought starts) - Priority level 3 */
+.drying {
+    background-color: #a05a2c !important;
+}
+
+/* Step 3: Harvest-Ready Indicator - Priority level 4 */
+.harvest-ready {
+    background-color: #e0c078 !important; /* Light beige color */
+    transition: background-color 2s ease-in-out;
+}
+
+/* Change Farm Cell Color when Full - Priority level 5 */
+.farm-cell.full {
+    background: yellow !important;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/* Raindrop Animation */
+@keyframes rain-fall {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(600px); opacity: 0; }
+}
+
+.rain-drop {
+    position: absolute;
+    width: 5px;
+    height: 10px;
+    background-color: rgba(0, 120, 255, 0.7);
+    border-radius: 50%;
+    animation: rain-fall 1s linear infinite;
+}
+
+/* Rain Timer (Forecast Display) */
+#rain-timer {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0077be;
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 5px 15px;
+    background: #e3f2fd;
+    border-radius: 10px;
+    display: inline-block;
+}
+
+
+/* Soil turns blue when irrigated by rain */
+.farm-cell.irrigated {
+    background-color: #b0e0e6 !important; /* Light blue */
+    transition: background-color 1s ease-in-out;
+}
+
+#rain-timer {
+    font-size: 18px;
+    font-weight: bold;
+    color: #0077be;
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 5px 15px;
+    background: #e3f2fd;
+    border-radius: 10px;
+    display: inline-block;
 }
 
 /* Responsive Design */
