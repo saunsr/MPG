@@ -5,17 +5,24 @@ document.addEventListener("DOMContentLoaded", function () {
     const gameContainer = document.getElementById("game-container");
     const startButton = document.getElementById("start-btn");
     const farmGrid = document.getElementById("farm-grid");
+    const soilMapBtn = document.getElementById("soil-map-btn");
+    const soilMapOverlay = document.getElementById("soil-map-overlay");
     const forecastText = document.getElementById("forecast-text");
     const applyTillageBtn = document.getElementById("tillage-btn");
     const growCropsBtn = document.getElementById("grow-crop-btn");
     const irrigateFieldBtn = document.getElementById("irrigation-btn");
     const harvestCropsBtn = document.getElementById("harvest-crop-btn");
+    const cropCounter = document.getElementById("crop-count"); // New counter element
+
+    const soilTypes = ["sandy", "clay", "loam"];
+    const farmCells = [];
 
     let isTillageInProgress = false; // Track tillage status
     let isTillageCompleted = false; // Flag for tillage completion
     let lastRow = 6; // Last row where tractor stopped (starts from bottom-left)
     let lastCol = 0; // Last column where tractor stopped (starts from bottom-left)
     let lastDirection = 'right'; // Direction of tractor movement ('right' or 'left')
+    let harvestedCrops = 0; // Track harvested crops
 
     // Start Game
     startButton.addEventListener("click", function () {
@@ -26,17 +33,53 @@ document.addEventListener("DOMContentLoaded", function () {
         setupWeatherSystem();
     });
 
-    // Create farm grid and pipeline
+    // Create farm grid, assign soil types, track crop count, and create pipeline wvwery two farm rows
     function createFarmGrid() {
         farmGrid.innerHTML = "";
+        farmCells.length = 0; // Reset the array
+
         for (let i = 0; i < 7 * 7; i++) {
             let cell = document.createElement("div");
             cell.classList.add("farm-cell");
+
+            // Assign a random soil type
+            let soilType = soilTypes[Math.floor(Math.random() * soilTypes.length)];
+            cell.dataset.soilType = soilType; // Store soil type in dataset
+            cell.classList.add(soilType); // Add class for CSS styling
+
+            // Initialize crop count
             cell.dataset.cropCount = 0; // Track the number of crops per cell
+
+            farmCells.push(cell);
             farmGrid.appendChild(cell);
         }
         createPipeline(); // Create pipeline across rows
     }
+
+    // Toggle Soil Map
+    soilMapBtn.addEventListener("click", function () {
+        const soilMap = document.getElementById("soil-map");
+        if (soilMap.style.display === "none") {
+            soilMap.style.display = "block";
+            updateSoilMap();
+        } else {
+            soilMap.style.display = "none";
+        }
+    });
+
+    // Update Soil Map Overlay
+    function updateSoilMap() {
+        soilMapOverlay.innerHTML = ""; // Clear previous map
+
+        farmCells.forEach((cell) => {
+            let soilCell = document.createElement("div");
+            soilCell.classList.add("soil-map-cell", cell.dataset.soilType);
+            soilMapOverlay.appendChild(soilCell);
+        });
+    }
+
+
+
 
     // Function to create a pipeline every two rows
     function createPipeline() {
@@ -297,30 +340,32 @@ function growCrops() {
 
 growCropsBtn.addEventListener("click", growCrops);
 
-// Function to harvest crops
+// Function to harvest crops one by one
 function harvestCrops() {
-    if (harvestQueue.length === 0) {
-        alert("No crops are ready for harvest yet!");
+    let matureCrops = harvestQueue.filter(({ crop }) => crop.classList.contains("full-grown-crop"));
+
+    if (matureCrops.length === 0) {
+        alert("No crops ready for harvest yet!");
         return;
     }
 
-    // Harvest crops in FIFO order (first grown crops first)
-    let interval = setInterval(() => {
-        if (harvestQueue.length === 0) {
-            clearInterval(interval); // Stop when no crops are left
-            return;
-        }
+    let { crop, tilledCell } = matureCrops[0]; // Get the first fully grown crop
+    let cropIndex = harvestQueue.findIndex(item => item.crop === crop);
+    harvestQueue.splice(cropIndex, 1); // Remove from the queue
 
-        let { crop, tilledCell } = harvestQueue.shift(); // Remove the first crop in queue
-        crop.remove(); // Remove the crop visually
+    crop.classList.add("harvested-crop"); // Apply movement animation
 
-        // Check if the cell is now empty
+    setTimeout(() => {
+        crop.remove(); // Remove crop after animation
+        harvestedCrops++;
+        cropCounter.textContent = harvestedCrops; // Update crop counter
+
         let remainingCrops = tilledCell.querySelectorAll(".crop").length;
         if (remainingCrops === 0) {
-            tilledCell.classList.remove("harvest-ready"); // Reset cell color
-            tilledCell.dataset.cropCount = "0"; // Reset count
+            tilledCell.classList.remove("harvest-ready");
+            tilledCell.dataset.cropCount = "0";
         }
-    }, 1000); // Remove crops one by one every 1 second
+    }, 1000); // Delay for visual movement
 }
 
 harvestCropsBtn.addEventListener("click", harvestCrops);
