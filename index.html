@@ -20,10 +20,15 @@
         <div class="section">
             <h2>Farm Layout</h2>
             <div id="farm-container">
-                <div id="farm-grid"></div>
+               <div id="farm-grid"></div>
             </div>
         </div>
-
+        <!-- Barn Storage Should Be Outside Farm Container -->
+        <div id="barn-container">
+            <img id="barn-image" src="images/barn.jpg" alt="Barn">
+            <p id="crop-counter">Number of Crops: <span id="crop-count">0</span></p>
+        </div> 
+        
         <!-- Soil Profile -->
         <div class="section">
             <h2>Soil Profile</h2>
@@ -36,6 +41,19 @@
         <div id="forecast-screen">
             <h3>Weather Forecast</h3>
             <p id="forecast-text">Loading forecast...</p>
+            <!-- Soil Map Button -->
+            <button id="soil-map-btn">Display Soil Heat Map</button>
+            <!-- Soil Map Overlay (Initially Hidden) -->
+            <div id="soil-map" style="display: none;">
+                <h4 id="soil-map-header">Soil Type Heat Map</h4>
+                <div id="soil-map-overlay"></div>
+                <p>Legend:</p>
+                <ul>
+                    <li><span class="soil sandy"></span> Sandy Soil (Dries Fast)</li>
+                    <li><span class="soil clay"></span> Clay Soil (Holds Moisture)</li>
+                    <li><span class="soil loam"></span> Loam Soil (Balanced)</li>
+                </ul>
+            </div>
         </div>
 
         <!-- Sidebar (Game Controls) -->
