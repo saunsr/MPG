@@ -36,7 +36,19 @@ body {
 }
 
 /* Farm & Soil Containers - Same Height */
-#farm-container, #soil-container {
+#farm-container{
+    position: relative; /* Ensures barn positions correctly */
+    flex: 1.2; /* Allocate more space to farm */
+    text-align: center;
+    height: 550px;
+    display: flex;
+    justify-content: flex-start; /* Prevents center alignment from moving barn */
+    align-items: center;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#soil-container {
     flex: 1.2; /* Allocate more space to farm and soil */
     text-align: center;
     height: 550px; /* Ensures both are same height */
@@ -44,6 +56,7 @@ body {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    overflow: hidden;
 }
 
 /* Reduce Game Controls Width */
@@ -60,15 +73,32 @@ body {
 
 /* Forecast Box */
 #forecast-box {
-    width: 100%;
+    width: 220px; /* Reduced width for a more compact look, previously 100% */
     text-align: center;
-    padding: 8px;
+    padding: 6px;
     background: #cde5ff;
     font-weight: bold;
     color: #0056b3;
     border-radius: 8px;
     margin-bottom: 10px;
+    height: 180px; /* Fixed height to prevent expanding, previous 220px */
+    position: relative;
+    overflow: hidden;
 }
+
+/* Adjust Forecast Text Size */
+#forecast-text {
+    font-size: 12px; /* Smaller text size */
+    line-height: 1.2;
+}
+
+/* Adjust Forecast Button for soil map*/
+#soil-map-btn {
+    width: 90%; /* Button width matches new column size */
+    font-size: 12px;
+    padding: 6px;
+}
+
 
 /* Farm Grid */
 #farm-grid {
@@ -77,8 +107,133 @@ body {
     grid-template-rows: repeat(7, 60px);
     gap: 5px;
     background: hwb(58 25% 16% / 0.455);
-    padding: 10px;
+    padding: 0px;
     position: relative;
+}
+
+/* Soil Type Colors for Farm Cells */
+.farm-cell {
+    width: 60px;
+    height: 60px;
+    border: 1px solid #333;
+    position: relative;
+    transition: background-color 0.3s ease-in-out;
+}
+
+/* Different Soil Types */
+.sandy {
+    background-color: #f4e4a1; /* Light yellow/tan */
+}
+
+.clay {
+    background-color: #a86b32; /* Reddish-brown */
+}
+
+.loam {
+    background-color: #6b5b38; /* Greenish-brown */
+}
+
+
+/* Soil Map Overlay */
+#soil-map {
+    display: none;
+    text-align: center;
+    margin-top: 5px;
+    padding: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+    max-width: 90%; /* Limits the map width so it doesn’t stretch */
+    overflow: hidden;
+    z-index: 5; /* Ensures soil map is above pipeline */
+    position: absolute;
+    top: 80px; /* Adjusts position within forecast box */
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#soil-map-overlay {
+    display: grid;
+    grid-template-columns: repeat(7, 30px); /* making each cell of heat map smaller */
+    grid-template-rows: repeat(7, 30px); /* making each cell of heat map smaller */
+    gap: 2px; /* making each cell of heat map smaller */
+    margin-top: 5px;
+    justify-content: center;
+}
+
+/* Styling for Soil Map Cells */
+.soil-map-cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #555;
+}
+
+/* Soil Map Colors */
+.soil-map-cell.sandy {
+    background-color: #f4e4a1;
+}
+
+.soil-map-cell.clay {
+    background-color: #a86b32;
+}
+
+.soil-map-cell.loam {
+    background-color: #6b5b38;
+}
+
+/* Soil Map Legend */
+#soil-map ul {
+    list-style-type: none;
+    padding: 0;
+    font-size: 10px;
+    margin-top: 3px;
+}
+
+#soil-map li {
+    display: flex;
+    align-items: center;
+    margin: 2px 0;
+}
+
+#soil-map li span.soil {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    border: 1px solid #000;
+}
+
+.soil.sandy {
+    background-color: #f4e4a1;
+}
+
+.soil.clay {
+    background-color: #a86b32;
+}
+
+.soil.loam {
+    background-color: #6b5b38;
+}
+
+
+
+/* Barn Container */
+#barn-container {
+    position: absolute;
+    top: 31px; /* Keeps barn above the farm grid */
+    right: 765px; /* Aligns barn with the right edge of the farm */
+    width: 60px;
+    height: auto;
+    text-align: center;
+    z-index: 10; /* Keeps barn visible above everything */
+    display: block;
+}
+
+
+/* Barn Image */
+#barn-image {
+    width: 70px;
+    height: auto;
 }
 
 /* Farm Cell */
@@ -88,6 +243,38 @@ body {
     background: #0aa13c; /* Green for untitled cells */
     border: 1px solid #333;
     position: relative;
+}
+
+/* Crop Counter Positioned Next To Barn */
+#crop-counter {
+    font-size: 14px;
+    font-weight: bold;
+    background: #fff3cd;
+    padding: 10px 15px;
+    border-radius: 5px;
+    color: #795548;
+    position: absolute; /* Makes sure it doesn't affect layout */
+    top: -40px; /* Moves it above the barn */
+    left: 50%; /* Centers it above the barn */
+    transform: translateX(-50%); /* Ensures proper centering */
+    white-space: nowrap; /* Prevents text from breaking into two lines */
+}
+
+/* Crop Movement Animation */
+@keyframes moveToBarn {
+    0% {
+        transform: translate(0, 0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(220px, -80px) scale(0.3);
+        opacity: 0;
+    }
+}
+
+/* Harvested Crops Animation */
+.harvested-crop {
+    animation: moveToBarn 1s ease-in-out forwards;
 }
 
 /* Soil Profile (with Matching Height) */
@@ -159,11 +346,10 @@ body {
     transform: scale(0.7); /* Grows to full size */
 }
 
-/* Crop Positioning */
-.farm-cell img {
-    position: absolute;
-    max-width: 80%;
-    max-height: 80%;
+/* Harvest-Ready Indicator */
+.harvest-ready {
+    background-color: #e0c078 !important;
+    transition: background-color 2s ease-in-out;
 }
 
 /* Button Styling */
