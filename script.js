@@ -1,6 +1,8 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("DOM fully loaded");
 
+    let evaporationTimeout; // 🔥 Fixes "ReferenceError: evaporationTimeout is not defined" - applied as a global variable
+
     const startScreen = document.getElementById("start-screen");
     const gameContainer = document.getElementById("game-container");
     const startButton = document.getElementById("start-btn");
@@ -14,8 +16,18 @@ document.addEventListener("DOMContentLoaded", function () {
     const harvestCropsBtn = document.getElementById("harvest-crop-btn");
     const cropCounter = document.getElementById("crop-count"); // New counter element
 
+
+    // Define soil types and moisture properties
     const soilTypes = ["sandy", "clay", "loam"];
-    const farmCells = [];
+    const soilMoistureRange = {
+        sandy: [20, 40], // Dries faster
+        loam: [40, 60],  // Balanced moisture
+        clay: [60, 80]   // Retains moisture
+    };
+
+    const farmCells = []; // Ensure we track farm cells
+    const moistureLevels = []; // Store each cell's moisture value
+
 
     let isTillageInProgress = false; // Track tillage status
     let isTillageCompleted = false; // Flag for tillage completion
@@ -24,14 +36,38 @@ document.addEventListener("DOMContentLoaded", function () {
     let lastDirection = 'right'; // Direction of tractor movement ('right' or 'left')
     let harvestedCrops = 0; // Track harvested crops
 
+
+    // Function to continuously update the farm grid
+    function continuouslyUpdateFarmGrid() {
+        console.log("✔️ continuouslyUpdateFarmGrid() is running...");
+
+        setInterval(() => {
+            farmCells.forEach((cell, index) => {
+                let moisture = moistureLevels[index];
+
+                // Simulate slight moisture fluctuation
+                let randomChange = Math.random() > 0.5 ? 1 : -1;
+                moistureLevels[index] = Math.max(0, Math.min(100, moisture + randomChange));
+
+                // Update visual representation of moisture
+                updateMoistureCell(cell, moistureLevels[index], true);
+            });
+
+            console.log("🔄 Farm grid updated with new moisture levels.");
+        }, 5000); // Update every 5 seconds
+    }
+
+
+
     // Start Game
     startButton.addEventListener("click", function () {
+        console.log("🎮 Game started! Calling setupWeatherSystem()...");
         console.log("Game started!");
         startScreen.style.display = "none";
         gameContainer.style.display = "flex";
         createFarmGrid();
         setupWeatherSystem();
-    });
+    });    
 
     // Create farm grid, assign soil types, track crop count, and create pipeline wvwery two farm rows
     function createFarmGrid() {
@@ -54,7 +90,88 @@ document.addEventListener("DOMContentLoaded", function () {
             farmGrid.appendChild(cell);
         }
         createPipeline(); // Create pipeline across rows
+        createMoistureMap(); // Call moisture map function after creating farm grid
+        continuouslyUpdateFarmGrid(); // Start continuous updates after moisture map is ready
     }
+
+    
+    // Function to create the Soil Moisture Map
+function createMoistureMap() {
+    const moistureMap = document.getElementById("moisture-map");
+    moistureMap.innerHTML = ""; // Clear existing map
+    moistureLevels.length = 0; // Reset array
+
+    farmCells.forEach((cell, index) => {
+        let soilType = cell.dataset.soilType;
+        let moisture = Math.floor(Math.random() * 
+            (soilMoistureRange[soilType][1] - soilMoistureRange[soilType][0])) + soilMoistureRange[soilType][0];
+
+        moistureLevels.push(moisture); // Store moisture level
+
+        // Create Soil Moisture Map Cell
+        let moistureCell = document.createElement("div");
+        moistureCell.classList.add("moisture-cell");
+        moistureCell.dataset.moisture = moisture;
+        updateMoistureCell(moistureCell, moisture); // Apply correct color
+        moistureMap.appendChild(moistureCell);
+
+        // 🔥 Update the farm grid cell color dynamically
+        updateMoistureCell(cell, moisture, true); // Ensure farm cell reflects moisture
+    });
+
+    continuouslyUpdateFarmGrid(); // Start automatic updates
+    applyEvaporation(); // 🔥 Now correctly starts after initialization
+}
+
+
+// Function to apply gradual evaporation
+function applyEvaporation() {
+    farmCells.forEach((cell, index) => {
+        let soilType = cell.dataset.soilType;
+
+        // 🔥 Different evaporation rates based on soil type
+        let evaporationRate = soilType === "sandy" ? 2 : soilType === "loam" ? 1.5 : 1;
+
+        // 🔻 Reduce moisture
+        moistureLevels[index] = Math.max(0, moistureLevels[index] - evaporationRate);
+
+        // 🔄 Update the moisture display
+        updateMoistureCell(cell, moistureLevels[index], true);
+    });
+
+    setTimeout(applyEvaporation, 10000); // Run evaporation every 10 seconds
+}
+
+
+// Function to update moisture cell color based on moisture level
+function updateMoistureCell(cell, moisture, isFarmGrid = false) {
+    cell.classList.remove("dry", "moderate", "wet");
+
+    if (moisture <= 30) {
+        cell.classList.add("dry");
+    } else if (moisture <= 70) {
+        cell.classList.add("moderate");
+    } else {
+        cell.classList.add("wet");
+    }
+
+    // ✅ Ensure the farm grid reflects moisture changes
+    if (isFarmGrid) {
+        let index = farmCells.indexOf(cell); // Get farm cell index
+        if (index !== -1) {
+            farmCells[index].style.transition = "background-color 2s ease-in-out"; // Apply transition
+            farmCells[index].style.backgroundColor = cell.style.backgroundColor; // Sync colors
+        }
+    }
+}
+
+
+// Start Game - Call both grid and moisture map
+document.getElementById("start-btn").addEventListener("click", function () {
+    document.getElementById("start-screen").style.display = "none";
+    document.getElementById("game-container").style.display = "flex";
+    createFarmGrid(); // Automatically calls createMoistureMap()
+});
 
     // Toggle Soil Map
     soilMapBtn.addEventListener("click", function () {
@@ -95,7 +212,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
         // Weather System (Drought, Rain, Storms)
-        function setupWeatherSystem() {
+        window.setupWeatherSystem = function() {
             const seasonTypes = ["Dry", "Balanced", "Stormy"];
             const selectedSeason = seasonTypes[Math.floor(Math.random() * seasonTypes.length)];
         
@@ -120,17 +237,21 @@ document.addEventListener("DOMContentLoaded", function () {
             }
         
             function updateRainTimer() {
+                console.log(`⏳ Rain countdown: ${rainCountdown}`);
                 rainCountdown--;
         
                 if (rainCountdown === 180) { // Drought hint
                     if (Math.random() * 100 < droughtChance) {
                         applyDroughtHint();
                         forecastText.textContent = "⚠️ Dry spell approaching! Soil losing moisture.";
+                        console.log("🚨 Drought Warning Issued!");
                     }
                 }
         
                 if (rainCountdown === 300) {
                     let weatherEvent = determineWeatherEvent();
+                    console.log(`🌦️ New weather event determined: ${weatherEvent}`);
+
                     if (weatherEvent === "Moderate Rain") {
                         forecastText.textContent = "🟢 Moderate rain expected in 5 minutes.";
                     } else if (weatherEvent === "Heavy Storm") {
@@ -147,6 +268,7 @@ document.addEventListener("DOMContentLoaded", function () {
                     startRainfall();
                     forecastText.textContent = "🌧️ It's raining! Soil is being irrigated.";
                     rainCountdown = 300;
+                    console.log("🌧️ Rain Started!");
                 }
             }
         
@@ -170,8 +292,7 @@ document.addEventListener("DOMContentLoaded", function () {
             // **Fix: Ensure forecast updates IMMEDIATELY when game starts**
             setTimeout(updateRainTimer, 1000);
             setInterval(updateRainTimer, 1000);
-        }
-
+        };
 
 
     // Function to start tillage with zig-zag movement
@@ -277,8 +398,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
     applyTillageBtn.addEventListener("click", startTillage);
 
-// Global queue to track harvest-ready crops in order
-let harvestQueue = [];
+   // Global queue to track harvest-ready crops in order
+   let harvestQueue = [];
 
 // Function to grow crops (only on tilled cells)
 function growCrops() {
@@ -373,13 +494,22 @@ harvestCropsBtn.addEventListener("click", harvestCrops);
 
 // Irrigation Functionality with Gradual Color Change
 function irrigateField() {
-    let farmCells = document.querySelectorAll(".farm-cell");
+    console.log("💦 Irrigation applied to all farm cells.");
 
     // Apply irrigation effect (turn blue)
-    farmCells.forEach(cell => {
+    farmCells.forEach((cell, index) => {
         cell.classList.add("irrigated");
+
+         // ✅ Increase moisture level in the data array
+        moistureLevels[index] = Math.min(100, moistureLevels[index] + 20); 
+
+        // ✅ Update the visual representation in both farm grid and moisture map
+        updateMoistureCell(cell, moistureLevels[index], true);
     });
 
+    createMoistureMap(); // ✅ Force update of the moisture map
+
+    // ✅ Trigger water animation on pipelines
     let pipelines = document.querySelectorAll(".pipeline");
     pipelines.forEach(pipeline => {
         let waterFlow = document.createElement("div");
@@ -388,20 +518,27 @@ function irrigateField() {
         
         // Pipeline: Remove water flow animation after 1 seconds
         setTimeout(() => {
-            waterFlow.remove();
-        }, 1000);
-    });
+            if (waterFlow && waterFlow.parentNode) {
+                waterFlow.remove();
+            }
+        }, 1000);        
+    }, 100); // Small delay to ensure animation applies after map update to prevent glitches to prevent soil moisture changes
 
-    console.log("💦 Irrigation applied to all farm cells.");
+    // ✅ Prevent evaporation for 15 seconds to let moisture remain
+    clearTimeout(evaporationTimeout); // Stop existing evaporation cycle
+    setTimeout(() => {
+        console.log("🔥 Restarting evaporation after irrigation.");
+        applyEvaporation(); // makes sure moisture starts decreasing again, so the blue effect disappears naturally, since previous set timeout may be overridden
+    }, 15000);
 
-    // **Farm Cells: Remove irrigation effect after 2.5 seconds**
+    // **Farm Cells: Remove irrigation effect after 1.5 seconds**
     setTimeout(() => {
         farmCells.forEach(cell => {
-            cell.classList.remove("irrigated"); 
-            cell.classList.add("drying-back"); // class for smooth ease-out
+            cell.classList.remove("irrigated"); // Force remove the irrigation effect (previous if function not removing irrigation effect)
+            cell.classList.add("drying-back"); // Smooth transition back
         });
-        console.log("⏳ Irrigation effect removed, transitioning back.");
-    }, 2500);
+        console.log("⏳ Irrigation effect removed properly.");
+    }, 1500);
 }
 
 irrigateFieldBtn.addEventListener("click", irrigateField);
@@ -446,8 +583,11 @@ function startRainfall() {
 
         if (targetIndex >= 0 && targetIndex < farmCells.length) {
             let targetCell = farmCells[targetIndex];
-            targetCell.classList.add("irrigated");
-            targetCell.dataset.irrigated = "true";
+            targetCell.classList.add("rain-irrigated"); // ✅ Apply rain effect
+            // ✅ Remove rain effect after 10 seconds
+            setTimeout(() => {
+                targetCell.classList.remove("rain-irrigated");
+            }, 10000);
         }
     }
  // ✅ Clear forecast after rain stops
