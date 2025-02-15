@@ -13,13 +13,14 @@ body {
 
 /* Game Container Layout */
 #game-container {
-    display: none;
-    width: 90%;
-    max-width: 1300px; /* Increased max width */
-    display: flex;
+    position: relative; /* Ensures barn is positioned relative to entire game layout and not just the farm */
+    display: none; /* Hides game initially */
+    width: 90%; /* for smaller screens uses 90% of screen to keep game responsive */
+    max-width: 1300px; /* Increased max width  for larger screens */
+    display: flex; /* js displays:flex when user starts game */
     flex-direction: row;
-    gap: 30px; /* Adds space between Farm, Soil, and Game Controls */
-    align-items: stretch;
+    gap: 45px; /* Adds space between Farm, Soil, and Game Controls */
+    align-items: stretch; /* Game-container matches the tallest section's heights */
 }
 
 /* Sections (Farm, Soil, Game Controls) */
@@ -71,7 +72,7 @@ body {
     height: 550px; /* Matches farm and soil profile */
 }
 
-/* Forecast Box */
+/* Forecast Box (part of forecast screen area) */
 #forecast-box {
     width: 220px; /* Reduced width for a more compact look, previously 100% */
     text-align: center;
@@ -89,6 +90,7 @@ body {
 /* Adjust Forecast Text Size */
 #forecast-text {
     font-size: 12px; /* Smaller text size */
+    margin-bottom: 50px; /* Adjust the space between forecast text and soil map button */
     line-height: 1.2;
 }
 
@@ -216,23 +218,85 @@ body {
 }
 
 
+/* Soil Moisture Map Styling */
+#moisture-map {
+    display: grid;
+    grid-template-columns: repeat(7, 30px); /* Same size as farm grid */
+    grid-template-rows: repeat(7, 30px);
+    gap: 2px;
+    margin-top: 5px;
+    justify-content: center;
+}
+
+/* Soil Moisture Cells */
+.moisture-cell {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #555;
+}
+
+/* Moisture Levels - Color Code */
+.moisture-cell.dry {
+    background-color: #a05a2c; /* Dry - Brown */
+}
+
+.moisture-cell.moderate {
+    background-color: #f4e4a1; /* Moderate - Yellowish */
+}
+
+.moisture-cell.wet {
+    background-color: #5aa3e0; /* Wet - Blue */
+}
+
+/* Soil Moisture Legend */
+#moisture-legend {
+    margin-top: 10px;
+    font-size: 12px;
+}
+
+#moisture-legend p {
+    display: flex;
+    align-items: center;
+    margin: 2px 0;
+}
+
+#moisture-legend .moisture {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 5px;
+    border: 1px solid #000;
+}
+
+/* Legend Colors */
+.moisture.dry {
+    background-color: #a05a2c;
+}
+
+.moisture.moderate {
+    background-color: #f4e4a1;
+}
+
+.moisture.wet {
+    background-color: #5aa3e0;
+}
+
 
 /* Barn Container */
 #barn-container {
     position: absolute;
-    top: 31px; /* Keeps barn above the farm grid */
-    right: 765px; /* Aligns barn with the right edge of the farm */
-    width: 60px;
-    height: auto;
+    top: -15px; /* Moves it just above the farm */
+    right: 855px; /* Aligns it with the right edge of the farm */
+    width: 70px; /* Fixed size so it remains consistent */
     text-align: center;
-    z-index: 10; /* Keeps barn visible above everything */
+    z-index: 10; /* Ensures it appears above other elements */
     display: block;
 }
 
 
 /* Barn Image */
 #barn-image {
-    width: 70px;
+    width: 100%;
     height: auto;
 }
 
@@ -243,18 +307,20 @@ body {
     background: #0aa13c; /* Green for untitled cells */
     border: 1px solid #333;
     position: relative;
+    transition: background-color 2s ease-in-out;
+    
 }
 
-/* Crop Counter Positioned Next To Barn */
+/* Crop Counter Positioned Above The Barn */
 #crop-counter {
     font-size: 14px;
     font-weight: bold;
     background: #fff3cd;
-    padding: 10px 15px;
+    padding: 5px 10px;
     border-radius: 5px;
     color: #795548;
     position: absolute; /* Makes sure it doesn't affect layout */
-    top: -40px; /* Moves it above the barn */
+    top: -30px; /* Moves it above the barn */
     left: 50%; /* Centers it above the barn */
     transform: translateX(-50%); /* Ensures proper centering */
     white-space: nowrap; /* Prevents text from breaking into two lines */
@@ -395,13 +461,13 @@ button:hover {
 
 /* Irrigated Cells - Priority level 1*/
 .irrigated {
-    background-color: #b0e0e6 !important; /* Light blue for water effect */
+    background-color: #b0e0e6; /* Light blue for water effect */
     transition: background-color 0.5s ease-in-out;
 }
 
 /* After irrigation is done it will smoothly transition back to original color for cell */
 .drying-back {
-    background-color: #0aa13c !important; /* previous cell color */
+    background-color: #0aa13c; /* previous cell color */
     transition: background-color 1s ease-in-out;
 }
 
@@ -457,8 +523,8 @@ button:hover {
 
 
 /* Soil turns blue when irrigated by rain */
-.farm-cell.irrigated {
-    background-color: #b0e0e6 !important; /* Light blue */
+.farm-cell.rain-irrigated {
+    background-color: #b0e0e6; /* Light blue */
     transition: background-color 1s ease-in-out;
 }
 
